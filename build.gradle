@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+}
+
+group 'cn.speedit.settlement'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+version = '1.0.0-alpha'
+ext {
+    author = 'ZouJiDi'
+}
+static def releaseTime() {
+    return new Date().format("yyyy-MM-dd HH:mm", TimeZone.getTimeZone("GMT+08:00"))
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile group: 'org.apache.axis2', name: 'axis2-kernel', version: '1.6.2'
+    compile group: 'org.apache.axis2', name: 'axis2-adb', version: '1.6.2'
+    compile group: 'org.apache.axis', name: 'axis', version: '1.4'
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.11.1'
+    
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'org.slf4j:slf4j-simple:1.7.25'
+    
+    compile group: 'javax.validation', name: 'validation-api', version: '1.1.0.Final'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile fileTree(dir:'lib',includes:['*jar'])
+}
+
+// 携带源码的打包
+task jar_with_source(type: Jar) {
+    manifest {
+        attributes(
+                'Created-By': project.ext.author,
+                'Built-By': project.ext.author,
+                'Built-On': "${releaseTime()}",
+                'Build-Jdk': '1.8',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version
+        )
+    }
+    baseName = 'settlement'
+
+    exclude('log4j2.xml')
+    
+    from sourceSets.main.output
+    from sourceSets.main.allSource
+}
