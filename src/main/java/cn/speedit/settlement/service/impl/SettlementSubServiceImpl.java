@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 
-
+import cn.speedit.settlement.bean.DtoSubmitResult;
 import cn.speedit.settlement.bean.Record;
 import cn.speedit.settlement.bean.msg.*;
 import cn.speedit.settlement.bean.rtn.FileDownloadsRtn;
@@ -41,17 +41,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * lang.String, int)
 	 */
 	@Override
-	public Record subApplyCancel(String provCode, int applyNo) throws Exception {
+	public DtoSubmitResult<Record> subApplyCancel(String provCode, int applyNo) {
 		String xmlData = new SettlementMsgBuildUtil().composeApplyCancelMsg(provCode, applyNo);
 		LogHelper.record("[申请取消结算][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[申请取消结算][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -62,17 +71,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * blassets.bean.settle.msg.SettleApplyJo)
 	 */
 	@Override
-	public Record subApply(SettlementApplyJo applyJo) throws Exception {
+	public DtoSubmitResult<Record> subApply(SettlementApplyJo applyJo) {
 		String xmlData = new SettlementMsgBuildUtil().composeApplyMsg(applyJo);
 		LogHelper.record("[申请结算][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[申请结算][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -83,37 +101,58 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * util.Set)
 	 */
 	@Override
-	public Record subFileUpload(List<SettlementFile> files) throws Exception {
+	public DtoSubmitResult<Record> subFileUpload(List<SettlementFile> files) {
 		String xmlData = new SettlementMsgBuildUtil().composeFileUploadMsg(files);
 		LogHelper.record("[上传文件][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[上传文件][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	@Override
-	public FileDownloadsRtn downloadFile(String fileCode) throws Exception {
+	public DtoSubmitResult<FileDownloadsRtn> downloadFile(String fileCode) {
 		// 字符转义 例如（&转&amp;）
 		fileCode = StringEscapeUtils.escapeXml11(fileCode);
 		String xmlData = new SettlementMsgBuildUtil().composeFileDownloadMsg(fileCode);
 		LogHelper.record("[下载文件][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[下载文件][返回报文]-"+rtnXml);
-		List<Record> rtnList = SettlementCallUtil.parseReturnXml(rtnXml, FileDownloadsRtn.class);
+		List<Record> rtnList = null;
+		try {
+			rtnList = SettlementCallUtil.parseReturnXml(rtnXml, FileDownloadsRtn.class);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 		FileDownloadsRtn fileDownloadsRtn = null;
 		if (!rtnList.isEmpty()) {
 			Record rtn = rtnList.get(0);
 			if ("failure".equals(rtn.get("result")))
-				throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
+				return new DtoSubmitResult<FileDownloadsRtn>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+
 			fileDownloadsRtn = (FileDownloadsRtn) rtn.get("result");
+		} else {
+			return new DtoSubmitResult<FileDownloadsRtn>(false, "-1", "报文解析异常");
 		}
 
-		return fileDownloadsRtn;
+		return new DtoSubmitResult<FileDownloadsRtn>(true, fileDownloadsRtn);
 	}
 
 	/*
@@ -124,17 +163,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * util.List)
 	 */
 	@Override
-	public Record subOrderCancel(List<SettlementOrderCancel> orderCancelList) throws Exception {
+	public DtoSubmitResult<Record> subOrderCancel(List<SettlementOrderCancel> orderCancelList) {
 		String xmlData = new SettlementMsgBuildUtil().composeOrderCancelMsg(orderCancelList);
 		LogHelper.record("[申请取消订单][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[申请取消订单][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -145,17 +193,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * .List)
 	 */
 	@Override
-	public Record subOrderGen(List<SettlementOrderGen> orderGenList) throws Exception {
+	public DtoSubmitResult<Record> subOrderGen(List<SettlementOrderGen> orderGenList) {
 		String xmlData = new SettlementMsgBuildUtil().composeOrderGenMsg(orderGenList);
 		LogHelper.record("[申请订单][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[申请订单][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -166,7 +223,7 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * util.List)
 	 */
 	@Override
-	public Record subOrderRecieve(List<SettlementOrderReceiveJo> orderReceiveVoList) throws Exception {
+	public DtoSubmitResult<Record> subOrderRecieve(List<SettlementOrderReceiveJo> orderReceiveVoList) throws Exception {
 		// TODO 材料通过接口传    固定资产通过中间库推送
 		
 		String xmlData = new SettlementMsgBuildUtil().composeOrderReceiveMsg(orderReceiveVoList);
@@ -175,10 +232,10 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 		LogHelper.record("[确认收货][返回文件报文]-"+rtnXml);
 		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -189,17 +246,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * util.List)
 	 */
 	@Override
-	public Record subPrjChange(List<SettlementPrjChange> prjChangeList) throws Exception {
+	public DtoSubmitResult<Record> subPrjChange(List<SettlementPrjChange> prjChangeList) {
 		String xmlData = new SettlementMsgBuildUtil().composePrjChangeMsg(prjChangeList);
 		LogHelper.record("[申请更换项目][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[申请更换项目][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -210,17 +276,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * .blassets.bean.settle.msg.SettleProvider)
 	 */
 	@Override
-	public Record subProvReg(SettlementProvider prov) throws Exception {
+	public DtoSubmitResult<Record> subProvReg(SettlementProvider prov) {
 		String xmlData = new SettlementMsgBuildUtil().composeProvRegMsg(prov);
 		LogHelper.record("[注册供应商][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[注册供应商][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -231,16 +306,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * .blassets.bean.settle.msg.SettleProvider)
 	 */
 	@Override
-	public Record subProvUpd(SettlementProvider prov) throws Exception {
+	public DtoSubmitResult<Record> subProvUpd(SettlementProvider prov){
 		String xmlData = new SettlementMsgBuildUtil().composeProvUpdMsg(prov);
 		LogHelper.record("[更新供应商][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[更新供应商][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -251,17 +336,26 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * java.lang.String, int)
 	 */
 	@Override
-	public Record queryApplyProgress(String provCode, int applyNo) throws Exception {
+	public DtoSubmitResult<Record> queryApplyProgress(String provCode, int applyNo) {
 		String xmlData = new SettlementMsgBuildUtil().fetchApplyProgress(provCode, applyNo);
 		LogHelper.record("[查询结算进度][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
 		LogHelper.record("[查询结算进度][返回报文]-"+rtnXml);
-		Record rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		Record rtn = null;
+		try {
+			rtn = SettlementCallUtil.parseReturnXml(rtnXml, false).get(0);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 
-		if ("failure".equals(rtn.get("result")))
-			throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
-
-		return rtn;
+		if ("failure".equals(rtn.get("result"))){
+			return new DtoSubmitResult<Record>(false, rtn.get("type").toString(), rtn.get("msg").toString());
+		}
+		return new DtoSubmitResult<Record>(true, rtn);
 	}
 
 	/*
@@ -272,7 +366,7 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * java.lang.String, java.lang.String)
 	 */
 	@Override
-	public QueryPrjInfoRtn queryPrjRecByPrjCode(String uniPrjCode, String bcode){
+	public DtoSubmitResult<QueryPrjInfoRtn> queryPrjRecByPrjCode(String uniPrjCode, String bcode){
 		String xmlData = new SettlementMsgBuildUtil().fetchPrjRecByPrjCode(uniPrjCode, bcode);
 		LogHelper.record("[查询项目详情][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
@@ -297,11 +391,14 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 			if ("failure".equals(rtn.get("result"))){
 				// throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
 				LogHelper.record(SettlementUtil.composeRrrorMsg(rtn));
-				return null;
+				return new DtoSubmitResult<QueryPrjInfoRtn>(false, rtn.get("type").toString(), rtn.get("msg").toString());
 			}
 			queryPrjInfoRtn = (QueryPrjInfoRtn) rtn.get("result");
+		} else {
+			return new DtoSubmitResult<QueryPrjInfoRtn>(false, "-1", "报文解析异常");
 		}
-		return queryPrjInfoRtn;
+
+		return new DtoSubmitResult<QueryPrjInfoRtn>(true, queryPrjInfoRtn);
 	}
 
 	/*
@@ -312,7 +409,7 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 	 * java.lang.String, java.lang.String)
 	 */
 	@Override
-	public QueryPrjRecsesRtn queryPrjRecsBySno(String sno, String bcode){
+	public DtoSubmitResult<QueryPrjRecsesRtn> queryPrjRecsBySno(String sno, String bcode){
 		String xmlData = new SettlementMsgBuildUtil().fetchPrjRecsBySno(sno, bcode);
 		LogHelper.record("[查询项目列表][提交报文]-"+xmlData);
 		String rtnXml = SettlementCallUtil.submit(xmlData);
@@ -338,12 +435,14 @@ public class SettlementSubServiceImpl implements SettlementSubService {
 			if ("failure".equals(rtn.get("result"))) {
 				// throw new Exception(SettlementUtil.composeRrrorMsg(rtn));
 				LogHelper.record(SettlementUtil.composeRrrorMsg(rtn));
-				return null;
+				return new DtoSubmitResult<QueryPrjRecsesRtn>(false, rtn.get("type").toString(), rtn.get("msg").toString());
 			}
 			queryPrjRecsesRtn = (QueryPrjRecsesRtn) rtn.get("result");
+		} else {
+			return new DtoSubmitResult<QueryPrjRecsesRtn>(false, "-1", "报文解析异常");
 		}
 
-		return queryPrjRecsesRtn;
+		return new DtoSubmitResult<QueryPrjRecsesRtn>(true, queryPrjRecsesRtn);
 	}
 
 	@Override

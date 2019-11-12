@@ -1,5 +1,6 @@
 package cn.speedit.settlement.service;
 
+import cn.speedit.settlement.bean.DtoSubmitResult;
 import cn.speedit.settlement.bean.Record;
 import cn.speedit.settlement.bean.msg.*;
 import cn.speedit.settlement.bean.rtn.FileDownloadsRtn;
@@ -28,7 +29,7 @@ public interface SettlementSubService {
 	 *            结算申请号
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subApplyCancel(String provCode, int applyNo) throws Exception;
+	public DtoSubmitResult<Record> subApplyCancel(String provCode, int applyNo);
 
 	/**
 	 * 简介：申请结算
@@ -63,7 +64,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subApply(SettlementApplyJo applyJo) throws Exception;
+	public DtoSubmitResult<Record> subApply(SettlementApplyJo applyJo);
 
 	/**
 	 * 简介：上传文件
@@ -77,7 +78,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subFileUpload(List<SettlementFile> files) throws Exception;
+	public DtoSubmitResult<Record> subFileUpload(List<SettlementFile> files);
 
 	/**
 	 * 简介：下载文件
@@ -92,7 +93,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public FileDownloadsRtn downloadFile(String fileCode) throws Exception;
+	public DtoSubmitResult<FileDownloadsRtn> downloadFile(String fileCode);
 
 	/**
 	 * 简介：申请取消订单（并释放冻结金额）
@@ -108,7 +109,7 @@ public interface SettlementSubService {
 	 *            <ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subOrderCancel(List<SettlementOrderCancel> orderCancelList) throws Exception;
+	public DtoSubmitResult<Record> subOrderCancel(List<SettlementOrderCancel> orderCancelList);
 
 	/**
 	 * 简介：申请订单（并冻结项目额度）
@@ -131,7 +132,7 @@ public interface SettlementSubService {
 	 *            </ul>
 	 * @throws Exception 
 	 */
-	public Record subOrderGen(List<SettlementOrderGen> orderGenList) throws Exception;
+	public DtoSubmitResult<Record> subOrderGen(List<SettlementOrderGen> orderGenList);
 
 	/**
 	 * 简介：申请收货确认
@@ -162,7 +163,7 @@ public interface SettlementSubService {
 	 *            </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subOrderRecieve(List<SettlementOrderReceiveJo> orderReceiveVoList) throws Exception;
+	public DtoSubmitResult<Record> subOrderRecieve(List<SettlementOrderReceiveJo> orderReceiveVoList) throws Exception;
 
 	/**
 	 * 简介：申请更换项目
@@ -179,7 +180,7 @@ public interface SettlementSubService {
 	 *            </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subPrjChange(List<SettlementPrjChange> prjChangeList) throws Exception;
+	public DtoSubmitResult<Record> subPrjChange(List<SettlementPrjChange> prjChangeList);
 
 	/**
 	 * 简介：申请供应商注册
@@ -214,7 +215,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subProvReg(SettlementProvider prov) throws Exception;
+	public DtoSubmitResult<Record> subProvReg(SettlementProvider prov);
 
 	/**
 	 * 简介：申请供应商更新
@@ -246,7 +247,7 @@ public interface SettlementSubService {
 	 *            </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record subProvUpd(SettlementProvider prov) throws Exception;
+	public DtoSubmitResult<Record> subProvUpd(SettlementProvider prov);
 
 	/**
 	 * 简介：查询结算进度
@@ -274,7 +275,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public Record queryApplyProgress(String provCode, int applyNo) throws Exception;
+	public DtoSubmitResult<Record> queryApplyProgress(String provCode, int applyNo);
 
 	/**
 	 * 简介：根据项目代码获取项目信息
@@ -303,7 +304,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public QueryPrjInfoRtn queryPrjRecByPrjCode(String uniPrjCode, String bcode);
+	public DtoSubmitResult<QueryPrjInfoRtn> queryPrjRecByPrjCode(String uniPrjCode, String bcode);
 
 	/**
 	 * 简介：根据工号获取项目列表
@@ -331,7 +332,7 @@ public interface SettlementSubService {
 	 *         </ul>
 	 * @throws Exception 如果接口调用异常
 	 */
-	public QueryPrjRecsesRtn queryPrjRecsBySno(String sno, String bcode);
+	public DtoSubmitResult<QueryPrjRecsesRtn> queryPrjRecsBySno(String sno, String bcode);
 
 	/**
 	 * 测试方法
